@@ -1,5 +1,2 @@
-borracho("adrian").
-borracho("lenin").
-borracho("Rafael").
-borracho("Jhonny").
-tomaAlchohol(X):-borracho(X).
+suma(0,0).
+suma(N,R):- A is N-1,suma(A,Ra),R is N+Ra.
