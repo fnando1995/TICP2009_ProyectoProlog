@@ -1,0 +1,1 @@
+verificar([ID,=|TS]) :- writeln(ID),writeln(TS).
