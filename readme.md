@@ -6,7 +6,7 @@ Dada una secuencia aritmetica con operadores (+,-,*,/) y agrupaciones (parentesi
 
 Ej:
 
-- Es correcta:  ((4+5)-6)*8
-- No correcta:  (4+5))-6)*8
+- Es correcta:  x=((4+5)-6)*8
+- No correcta:  x=(4+5))-6)*8
 
 El programa debera entrega de resultado SI o NO dependiendo de la secuencia aritmetica.
