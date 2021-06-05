@@ -103,7 +103,7 @@ operador2(/).
 id(ID):- atom(ID).
 
 %% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
-expr2([X|TSEnd],TSEnd):-        operador1(X).
+expr2([X|TSEnd_I],TSEnd):-      operador1(X),expr(TSEnd_I,TSEnd).
 expr2([X|TSEnd],TSEnd):-        id(X).
 expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
@@ -114,12 +114,9 @@ expr2(['('|TSInit], TSEnd ):-   expr(TSInit, [ ')' | TSEnd ]).
 expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), operador2(OP), expr1(TSEnd_I,TSEnd).
 expr1(TSInit,TSEnd):- expr2(TSInit,TSEnd).
 
-
 %% <expr> --> <expr> <op1> <expr1> | <expr1>
 expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), operador1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
-
-
 
 %% <assignStmt> -->  <id> = <expr>
 assignStmt([ID,=|TSInitNoID],TSEnd):-  
@@ -141,7 +138,7 @@ executeProgram(FileName):-
         %write('INPUT STREAM:'),writeln(ProgramString),
         % tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
         phrase(tokenize(TSInit), ProgramString),
-        write('TSInit:'),writeln(TSInit),
+        %write('TSInit:'),writeln(TSInit),
         % verifico si TSinit es un assign Statement.
         assignStmt(TSInit,[]).
 
