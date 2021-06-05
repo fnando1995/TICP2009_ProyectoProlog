@@ -37,7 +37,7 @@ asignación (en python = ). Lo restante del lado derecho es la expresión que
 se asignará. Se debe realizar en análisis de esta expresión.
 
 La expresión se analiza separando partes de la lista sobrante según operadores
-(+,-,\*,\/) y revisando a modo de arbol si estas sublistas tienen un final de
+(+,-,\*,\/) y revisando a modo de arbol si esta sublista tiene un final de
 tipo: operador1 (esto se usa para casos donde un operador2 está alado de un 
 operador uno, ej: 3\*-4) junto a una expresión, id (variable), integer, float, 
 String, expresion entre paréntesis.
@@ -50,7 +50,7 @@ que limitan la expresión según un operador como se mencionó anteriormente.
 ### Ejecución: 
 
 
-Dentro de `testcases/` se tienen varios `testX.txt`. Los test y resutlados
+Dentro de `testcases/` se tienen varios `testX.txt`. Los test y resultados
 esterados se pueden observar en `testcases/Review.txt`.
 
 Para ejecutar cada aso:
