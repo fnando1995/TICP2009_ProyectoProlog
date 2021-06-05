@@ -1,4 +1,4 @@
-test1.txt        x=3                         expected: True
+test1.txt        x=j                         expected: True
 test2.txt        x=3+4                       expected: True
 test3.txt        x=(3+4)                     expected: True
 test4.txt        x=(3+4)/2                   expected: True
