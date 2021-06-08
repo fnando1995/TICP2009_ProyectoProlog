@@ -99,8 +99,9 @@ operador1(+).
 operador1(-).
 operador2(*).
 operador2(/).
+operador(X):- operador1(X) | operador2(X).
 % se define id como un atom(). 
-id(ID):- atom(ID),\+ operador1(ID).
+id(ID):- atom(ID),\+ operador(ID).
 
 %% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      operador1(X),expr(TSEnd_I,TSEnd).
