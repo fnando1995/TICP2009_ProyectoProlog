@@ -100,7 +100,7 @@ operador1(-).
 operador2(*).
 operador2(/).
 % se define id como un atom(). 
-id(ID):- atom(ID).
+id(ID):- atom(ID),\+ operador1(ID).
 
 %% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      operador1(X),expr(TSEnd_I,TSEnd).
@@ -109,6 +109,7 @@ expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
 expr2([X|TSEnd],TSEnd):-        string(X).
 expr2(['('|TSInit], TSEnd ):-   expr(TSInit, [ ')' | TSEnd ]).
+
 
 %% <expr1> --> <expr1> <op2> <expr2> | <expr2>
 expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), operador2(OP), expr1(TSEnd_I,TSEnd).

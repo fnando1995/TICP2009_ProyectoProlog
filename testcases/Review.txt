@@ -14,3 +14,4 @@ test13.txt       x=3+                        expected: False
 test14.txt       x=(3+4                      expected: False
 test15.txt       x=(4-8)+2)                  expected: False
 test16.txt       x=(((4*2)-5)-7              expected: False    
+test17.txt       x=(-9-8)-7                  expected: False    
