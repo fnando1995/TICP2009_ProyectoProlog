@@ -1,0 +1,26 @@
+Esta entrega final se las voy a dejar un poco más abierta de lo que planeaba inicialmente. 
+Tengo dudas acerca de la complejidad necesaria para manejar la indentación de python en el proyecto. 
+Sin duda no es imposible pero creo que las reglas se complicarían más de lo que yo espero para el proyecto 
+(quizás ustedes lo vean diferente cuando ya esten sentados programando). Por lo tanto decidí hacer 
+la entrega final del proyecto un tanto más flexible.
+
+Su proyecto final concluirá con unas extensiones sobre lo que han hecho para las cuales 
+ustedes mismos definirán el BNF. El entregable entonces serán las reglas en BNF correctamente
+descritas, y su implementación en PROLOG para verificar programas bien escritos. Quiero que implementen 
+algunas reglas que les permitan emular aspectos de UNO SOLO de los lenguajes más comunes (python, C, 
+C++, Java, Javascript, ...) pero ustedes pueden escogerlo. Las gramáticas que deben crear deben facilitar 
+lo siguiente:
+
+- Un programa debe de consistir de varias sentencias/statements.
+    # program :- <stmntList>
+- Iteraciones y condicionales con anidación.
+- Definición de funciones.
+Llamadas a funciones con multiples argumentos y expresiones como argumentos (una llamada es una expresión también).
+Manejo de arreglos. Listas y diccionarios también si es que son nativos en el lenguaje que están emulando/definiendo.
+El entregable de esta tarea debe de ser el mismo link de github que ya subieron antes.
+
+
+
+
+
+<declarationStatement> --> 

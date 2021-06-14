@@ -6,8 +6,7 @@
 %% Assignment Statement confirmation
 
 
-
-
+%% import tokenize.pl for tokenizer | Tokenizer
 %% Abstracted ------------------------------------------------------------------
 list([H|T],H,T).
 append([ ],A,A).
@@ -57,55 +56,57 @@ tokenize([])            -->[].
 %% Tokenize("x=3+4") ==> [x,=,3,+,4]
 
 
-/* 
-Desarrollo: 
 
-<op1> --> + | -
-<op2> --> * | /
-Se asigna operadores y se categoriza
-segun su nivel de importancia en una secuencia
-aritmetica normal. Primero + y -, luego * y /
+finlinea(';').
+%% <coma>--> ','
+coma(',').
+%% <asigop> --> =
+asigop(=).
+%% <op1> --> - | +
+op1(+).
+op1(-).
+%% <op2> --> * | /
+op2(*).
+op2(/).
+%% <comop> --> == | < | > | <= | >= | <>  
+comop(==).
+comop(>=).
+comop(<=).
+comop(>).
+comop(<).
+comop(<>).
+%% <ops>
+ops(X):- asigop(X) | op1(X) | op2(X) | comop(X).
+%% <variable> --> <atom> | \+ <ops>
+variable(ID):- atom(ID),\+ ops(ID).
+%% <array_var> --> <atom>[<int>]
+%array_var([ID,'[',INT,']']):- variable(ID),integer(INT).
+%% <array> --> Definir un array ???
+%% <>
 
-<assignStmt> --> <id> = <expr>
-Se intenta sabe si es un operador de asignacion
-se separa la lista tokenizada en dos partes separadas por
-el operador '='. A la izquierda <id> a la derecha <expr>
-esta expresion se debe evaluar si esta correcta.
+%% <id> --> <array_id> | <variable>
+id(X):- variable(X). %| array_var(X).
 
-<expr> --> <expr> <op1> <expr1> | <expr1>
-Se entiende (o define) como <expr> a una expresion
-que puede tener operadores nivel 1 y 2. Una <expr>
-puede ser considerado una <expr1> para intentar
-resolver, caso contrario sera un false(BT)
+%% <idList> --> <id> | <id><idList>
+idList([ID,';'|TSEnd],TSEnd):- id(ID).
+idList([ID,','|TSInit],TSEnd):- id(ID),idList(TSInit,TSEnd).
 
-<expr1> --> <expr1> <op2> <expr2> | <expr2>
-Se entiende (o define) como <expr1> a una expresion
-que puede tener operadores nivel 2. Una <expr1> 
-puede ser considerado una <expr0> para intentar
-resolver caso contrario sera un false.(BT)
+%% <vartype> --> int | long | float | double | char | bool.
+vartype(int).
+vartype(long).
+vartype(float).
+vartype(double).
+vartype(char).
+vartype(bool).
 
-<expr2> --> <id> | <entero> | <numDecimal> | (<expr>)
-Se entiende (o define) como <expr2> a una expresion
-que puede contener id,integer,float,string o (<expr>)
-que es una expresion entre parentesis y se 
-resuelve eliminando los parentesis (en pares) y resolviendo
-lo interno (expr). En caso que no se resuelve con estos,
-se entendra que la <expr0> es erronea por lo cual se
-retornara un false.
- */
+%% <declarationStatement> --> <vartype><idList>;
+declarationStatement([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,TSEnd).
 
-%operadores niveles 1 y 2
-operador1(+).
-operador1(-).
-operador2(*).
-operador2(/).
-operador(X):- operador1(X) | operador2(X).
-% se define id como un atom(). 
-id(ID):- atom(ID),\+ operador(ID).
+
 
 %% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
-expr2([X|TSEnd_I],TSEnd):-      operador1(X),expr(TSEnd_I,TSEnd).
-expr2([X|TSEnd],TSEnd):-        id(X).
+expr2([X|TSEnd_I],TSEnd):-      op1(X),expr(TSEnd_I,TSEnd).
+expr2([X|TSEnd],TSEnd):-        variable(X).
 expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
 expr2([X|TSEnd],TSEnd):-        string(X).
@@ -113,22 +114,19 @@ expr2(['('|TSInit], TSEnd ):-   expr(TSInit, [ ')' | TSEnd ]).
 
 
 %% <expr1> --> <expr1> <op2> <expr2> | <expr2>
-expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), operador2(OP), expr1(TSEnd_I,TSEnd).
+expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), op2(OP), expr1(TSEnd_I,TSEnd).
 expr1(TSInit,TSEnd):- expr2(TSInit,TSEnd).
 
 %% <expr> --> <expr> <op1> <expr1> | <expr1>
-expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), operador1(OP), expr(TSEnd_I,TSEnd).
+expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), op1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
 
 %% <assignStmt> -->  <id> = <expr>
-assignStmt([ID,=|TSInitNoID],TSEnd):-  
-        % separo el TokenizedString por '=' donde:
-        % ID = antes del signo
-        % TSInitNoID lista luego del signo
-        % TSEnd es el final, se compara con [] para verificar si el assignStmt es correcto.
-        id(ID),                       % verifica si es atom(id)
-        %write('AssignStmt'),writeln(TSInitNoID),            % debug imprimo TSInitNoID para continuar
-        expr(TSInitNoID,TSEnd).
+assignStmt([ID,X|TSInitNoID],TSEnd):-  variable(ID),asigop(X),expr(TSInitNoID,TSEnd).
+
+
+program(TSInit,TSEnd):- assignStmt(TSInit,TSEnd) | declarationStatement(TSInit,TSEnd).
+
 
 %% Ejecucion:
 %% Leo archivo txt, tokenizo y ejecuto program(en esta entrega saber si es un statement de asignacion)
@@ -137,12 +135,11 @@ executeProgram(FileName):-
         open(FileName, 'read', InputStream),
         read_stream_to_codes(InputStream, ProgramString),
         close(InputStream),
-        %write('INPUT STREAM:'),writeln(ProgramString),
-        % tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
+        %% tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
         phrase(tokenize(TSInit), ProgramString),
-        %write('TSInit:'),writeln(TSInit),
-        % verifico si TSinit es un assign Statement.
-        assignStmt(TSInit,[]).
+        write('TSInit:'),writeln(TSInit),
+        %% verifico si TSinit es un assign Statement.
+        program(TSInit,[]).
 
 
 
