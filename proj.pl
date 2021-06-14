@@ -137,7 +137,7 @@ executeProgram(FileName):-
         close(InputStream),
         %% tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
         phrase(tokenize(TSInit), ProgramString),
-        write('TSInit:'),writeln(TSInit),
+        %write('TSInit:'),writeln(TSInit),
         %% verifico si TSinit es un assign Statement.
         program(TSInit,[]).
 
