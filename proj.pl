@@ -78,18 +78,17 @@ comop(<>).
 %% <ops>
 ops(X):- asigop(X) | op1(X) | op2(X) | comop(X).
 %% <variable> --> <atom> | \+ <ops>
-variable(ID):- atom(ID),\+ ops(ID).
-%% <array_var> --> <atom>[<int>]
-%array_var([ID,'[',INT,']']):- variable(ID),integer(INT).
-%% <array> --> Definir un array ???
-%% <>
+variable([ID|TSEnd],TSEnd):- atom(ID),\+ ops(ID).
+variable(ID,[]):- atom(ID),\+ ops(ID).
+%% <array_var> --> <atom> [ <int> ]
+array_var([X|['[',Y,']'|TSEnd]],TSEnd):- variable(X,[]),integer(Y).
+%% <id> -->  <variable>| <array> 
+id(TSInit,TSEnd):- variable(TSInit,TSEnd) | array_var(TSInit,TSEnd). 
 
-%% <id> --> <array_id> | <variable>
-id(X):- variable(X). %| array_var(X).
 
 %% <idList> --> <id> | <id><idList>
-idList([ID,';'|TSEnd],TSEnd):- id(ID).
-idList([ID,','|TSInit],TSEnd):- id(ID),idList(TSInit,TSEnd).
+idList(TSInit,TSEnd):- id(TSInit,[';'|TSEnd]).
+idList(TSInit,TSEnd):- id(TSInit,[','|TSInit_I]),idList(TSInit_I,TSEnd).
 
 %% <vartype> --> int | long | float | double | char | bool.
 vartype(int).
@@ -102,11 +101,9 @@ vartype(bool).
 %% <declarationStatement> --> <vartype><idList>;
 declarationStatement([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,TSEnd).
 
-
-
 %% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      op1(X),expr(TSEnd_I,TSEnd).
-expr2([X|TSEnd],TSEnd):-        variable(X).
+expr2([X|TSEnd],TSEnd):-        variable(X,[]).
 expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
 expr2([X|TSEnd],TSEnd):-        string(X).
@@ -122,7 +119,7 @@ expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), op1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
 
 %% <assignStmt> -->  <id> = <expr>
-assignStmt([ID,X|TSInitNoID],TSEnd):-  variable(ID),asigop(X),expr(TSInitNoID,TSEnd).
+assignStmt([ID,X|TSInit],TSEnd):-  variable(ID,[]),asigop(X),expr(TSInit,TSEnd).
 
 
 program(TSInit,TSEnd):- assignStmt(TSInit,TSEnd) | declarationStatement(TSInit,TSEnd).

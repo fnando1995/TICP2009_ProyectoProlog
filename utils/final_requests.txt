@@ -12,7 +12,6 @@ C++, Java, Javascript, ...) pero ustedes pueden escogerlo. Las gramáticas que d
 lo siguiente:
 
 - Un programa debe de consistir de varias sentencias/statements.
-    # program :- <stmntList>
 - Iteraciones y condicionales con anidación.
 - Definición de funciones.
 Llamadas a funciones con multiples argumentos y expresiones como argumentos (una llamada es una expresión también).
@@ -22,5 +21,25 @@ El entregable de esta tarea debe de ser el mismo link de github que ya subieron 
 
 
 
+Notas de desarrollo:
+- Array 1 dimension int a[5];  ... mas dimensiones entonces int a[5][6]....[100] esto no se considera.
 
-<declarationStatement> --> 
+
+# program :- <stmntList>
+
+
+<expr>:- 
+
+<declaration-statement> := <vartype>,<idList>.
+
+<assigment-statement> := <id> = <expr>
+
+<if-statement> := if ( <expr> ) {<statementList>}
+                  | if ( <expr> ) {<statementList>} else {<statementList>}
+
+
+<while-statement> := while ( <expr> ) <statement>
+                    | do <statement> while ( <expression> ) ;
+                    | for ( {<expression>}? ; {<expression>}? ; {<expression>}? ) <statement>
+
+<for-statement> :=
