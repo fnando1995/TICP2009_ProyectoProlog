@@ -1,0 +1,4 @@
+int a;
+float b[5];
+
+char a[5],b,u;
