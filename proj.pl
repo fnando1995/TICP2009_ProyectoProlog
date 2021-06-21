@@ -113,9 +113,8 @@ condExpr(TSInit,TSEnd):- expr(TSInit,[X|TSEnd_I]),comop(X),expr(TSEnd_I,TSEnd). 
 %% <ifStmt> --> if (<condExpr>) {<listStmt>} else {<listStmt>}
 ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}','else','{'|TSEnd_I1]),listStmt(TSEnd_I1,['}'|TSEnd]).
 ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
-
 %% <stmt> :- assignStmt | declareStatement
-stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd).
+stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd) | ifStmt(TSInit,TSEnd).
 listStmt(TSInit,TSEnd) :- stmt(TSInit,TSInit_I),listStmt(TSInit_I,TSEnd) | stmt(TSInit,TSEnd).
 program(TSInit,TSEnd):- listStmt(TSInit,TSEnd).
 %% Ejecucion:
@@ -127,11 +126,9 @@ executeProgram(FileName):-
         close(InputStream),
         %% tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
         phrase(tokenize(TSInit), ProgramString),
-        write('TSInit:'),writeln(TSInit),
+        %% write('TSInit:'),writeln(TSInit),
         %% verifico si TSinit es un assign Statement.
-        %program(TSInit,[]).
-        ifStmt(TSInit,[]).
-
+        program(TSInit,[]).
 
 
 
