@@ -57,9 +57,6 @@ tokenize([])            -->[].
 
 
 
-finlinea(';').
-%% <coma>--> ','
-coma(',').
 %% <asigop> --> =
 asigop(=).
 %% <op1> --> - | +
@@ -84,12 +81,9 @@ variable(ID,[]):- atom(ID),\+ ops(ID).
 array_var([X|['[',Y,']'|TSEnd]],TSEnd):- variable(X,[]),integer(Y).
 %% <id> -->  <variable>| <array> 
 id(TSInit,TSEnd):- variable(TSInit,TSEnd) | array_var(TSInit,TSEnd). 
-
-
 %% <idList> --> <id> | <id><idList>
 idList(TSInit,TSEnd):- id(TSInit,[';'|TSEnd]).
 idList(TSInit,TSEnd):- id(TSInit,[','|TSInit_I]),idList(TSInit_I,TSEnd).
-
 %% <vartype> --> int | long | float | double | char | bool.
 vartype(int).
 vartype(long).
@@ -97,34 +91,26 @@ vartype(float).
 vartype(double).
 vartype(char).
 vartype(bool).
-
-%% <declarationStatement> --> <vartype><idList>;
-declarationStatement([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,TSEnd).
-
-%% <expr0> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
+%% <expr2> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      op1(X),expr(TSEnd_I,TSEnd).
 expr2([X|TSEnd],TSEnd):-        variable(X,[]).
 expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
 expr2([X|TSEnd],TSEnd):-        string(X).
 expr2(['('|TSInit], TSEnd ):-   expr(TSInit, [ ')' | TSEnd ]).
-
-
 %% <expr1> --> <expr1> <op2> <expr2> | <expr2>
 expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), op2(OP), expr1(TSEnd_I,TSEnd).
 expr1(TSInit,TSEnd):- expr2(TSInit,TSEnd).
-
 %% <expr> --> <expr> <op1> <expr1> | <expr1>
 expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), op1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
-
+%% <declarationStatement> --> <vartype><idList>;
+declarationStatement([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,TSEnd).
 %% <assignStmt> -->  <id> = <expr>
 assignStmt([ID,X|TSInit],TSEnd):-  variable(ID,[]),asigop(X),expr(TSInit,TSEnd).
-
-
-program(TSInit,TSEnd):- assignStmt(TSInit,TSEnd) | declarationStatement(TSInit,TSEnd).
-
-
+stmt(TSInit,TSEnd) :- assignStmt(TSInit,TSEnd) | declarationStatement(TSInit,TSEnd).
+listStmt(TSInit,TSEnd) :- stmt(TSInit,TSInit_I),listStmt(TSInit_I,TSEnd) | stmt(TSInit,TSEnd).
+program(TSInit,TSEnd):- listStmt(TSInit,TSEnd).
 %% Ejecucion:
 %% Leo archivo txt, tokenizo y ejecuto program(en esta entrega saber si es un statement de asignacion)
 executeProgram(FileName):- 
