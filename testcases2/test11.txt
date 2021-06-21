@@ -1,0 +1,9 @@
+if (a==b) {
+    x=5;
+    int a=20;
+    }
+else{
+        a=5;
+        int a[5],y,t;
+        float b=(10*5)+20;
+    }

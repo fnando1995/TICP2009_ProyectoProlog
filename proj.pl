@@ -73,13 +73,13 @@ comop(<).
 comop(<>).
 %% <ops>
 ops(X):- asigop(X) | op1(X) | op2(X) | comop(X).
-%% <variable> --> <atom> | \+ <ops>
-variable([ID|TSEnd],TSEnd):- atom(ID),\+ ops(ID).
-variable(ID,[]):- atom(ID),\+ ops(ID).
+%% <var_id> --> <atom> | \+ <ops>
+var_id([ID|TSEnd],TSEnd):- atom(ID),\+ ops(ID).
+var_id(ID,[]):- atom(ID),\+ ops(ID).
 %% <array_var> --> <atom> [ <int> ]
-array_var([X|['[',Y,']'|TSEnd]],TSEnd):- variable(X,[]),integer(Y).
-%% <id> -->  <variable>| <array> 
-id(TSInit,TSEnd):- variable(TSInit,TSEnd) | array_var(TSInit,TSEnd). 
+array_id([X|['[',Y,']'|TSEnd]],TSEnd):- var_id(X,[]),integer(Y).
+%% <id> -->  <var_id>| <array> 
+id(TSInit,TSEnd):- var_id(TSInit,TSEnd) | array_id(TSInit,TSEnd). 
 %% <idList> --> <id> | <id><idList>
 idList(TSInit,TSEnd):- id(TSInit,TSEnd).
 idList(TSInit,TSEnd):- id(TSInit,[','|TSInit_I]),idList(TSInit_I,TSEnd).
@@ -92,7 +92,7 @@ vartype(char).
 vartype(bool).
 %% <expr2> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      op1(X),expr(TSEnd_I,TSEnd).
-expr2([X|TSEnd],TSEnd):-        variable(X,[]).
+expr2([X|TSEnd],TSEnd):-        var_id(X,[]).
 expr2([X|TSEnd],TSEnd):-        integer(X).
 expr2([X|TSEnd],TSEnd):-        float(X).
 expr2([X|TSEnd],TSEnd):-        string(X).
@@ -100,14 +100,20 @@ expr2(['('|TSInit], TSEnd ):-   expr(TSInit, [ ')' | TSEnd ]).
 %% <expr1> --> <expr1> <op2> <expr2> | <expr2>
 expr1(TSInit,TSEnd):- expr2(TSInit,[OP|TSEnd_I]), op2(OP), expr1(TSEnd_I,TSEnd).
 expr1(TSInit,TSEnd):- expr2(TSInit,TSEnd).
-%% <expr> --> <expr> <op1> <expr1> | <expr1>;
+%% <expr> --> <expr> <op1> <expr1> | <expr1>
 expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), op1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
-%% <declareStmt> --> <vartype><idList> | <vartype><assigStmt>
+%% <declareStmt> --> <vartype><idList>; | <vartype><assigStmt>
 declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,[';'|TSEnd]).
 declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),assignStmt(TSInit,TSEnd).
-%% <assignStmt> -->  <id> = <expr>
-assignStmt([ID,X|TSInit],TSEnd):-  variable(ID,[]),asigop(X),expr(TSInit,[';'|TSEnd]).
+%% <assignStmt> -->  <id> = <expr>;
+assignStmt([ID,X|TSInit],TSEnd):-  var_id(ID,[]),asigop(X),expr(TSInit,[';'|TSEnd]).
+%% <condExpr> --> <exp> <compop> <exp>
+condExpr(TSInit,TSEnd):- expr(TSInit,[X|TSEnd_I]),comop(X),expr(TSEnd_I,TSEnd).  %%posible modif
+%% <ifStmt> --> if (<condExpr>) {<listStmt>} else {<listStmt>}
+ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}','else','{'|TSEnd_I1]),listStmt(TSEnd_I1,['}'|TSEnd]).
+ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
+
 %% <stmt> :- assignStmt | declareStatement
 stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd).
 listStmt(TSInit,TSEnd) :- stmt(TSInit,TSInit_I),listStmt(TSInit_I,TSEnd) | stmt(TSInit,TSEnd).
@@ -121,9 +127,10 @@ executeProgram(FileName):-
         close(InputStream),
         %% tokenize se resuelve con el stream del archivo en ProgramString en TSInit.
         phrase(tokenize(TSInit), ProgramString),
-        %write('TSInit:'),writeln(TSInit),
+        write('TSInit:'),writeln(TSInit),
         %% verifico si TSinit es un assign Statement.
-        program(TSInit,[]).
+        %program(TSInit,[]).
+        ifStmt(TSInit,[]).
 
 
 
