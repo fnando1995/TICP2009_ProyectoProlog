@@ -1,0 +1,10 @@
+int function(a,b,c){
+    int = 5;
+}
+do{
+    int a=5;
+    float b;
+}while(a==b);
+if(a<>b){
+    int c;
+}

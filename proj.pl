@@ -113,8 +113,14 @@ condExpr(TSInit,TSEnd):- expr(TSInit,[X|TSEnd_I]),comop(X),expr(TSEnd_I,TSEnd). 
 %% <ifStmt> --> if (<condExpr>) {<listStmt>} else {<listStmt>}
 ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}','else','{'|TSEnd_I1]),listStmt(TSEnd_I1,['}'|TSEnd]).
 ifStmt(['if','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
+%% <whileStmnt> --> while (<condExpr>) {<listStmt>}
+whileStmt(['while','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
+%% <doWhileStmnt> --> do{<listStmt>}while(<condExpr>);
+doWhileStmt(['do','{'|TSInit],TSEnd):- listStmt(TSInit,['}','while','('|TSEnd_I]),condExpr(TSEnd_I,[')',';'|TSEnd]).
+%% <function>--> <vartype> <atom>(<id_list>) {<listStmt>}
+functionStmt([X,FUNCNAME,'('|TSInit],TSEnd):- vartype(X),atom(FUNCNAME),idList(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
 %% <stmt> :- assignStmt | declareStatement
-stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd) | ifStmt(TSInit,TSEnd).
+stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd) | ifStmt(TSInit,TSEnd) | whileStmt(TSInit,TSEnd) | doWhileStmt(TSInit,TSEnd) | functionStmt(TSInit,TSEnd).
 listStmt(TSInit,TSEnd) :- stmt(TSInit,TSInit_I),listStmt(TSInit_I,TSEnd) | stmt(TSInit,TSEnd).
 program(TSInit,TSEnd):- listStmt(TSInit,TSEnd).
 %% Ejecucion:

@@ -1,0 +1,7 @@
+do{
+    int a=5;
+    float b;
+}while(a==b);
+if(a<>b){
+    int c;
+}
