@@ -44,7 +44,7 @@ El lenguaje escogido es C
 
 Dentro de `testcases2/` se tienen varios `testX.txt`. 
 
-Para ejecutar cada aso:
+Para ejecutar cada caso:
 
 ```
 swipl proj.pl
@@ -62,7 +62,7 @@ Se debe de tomar en cuentas las siguientes consideraciones sobre la ejecución d
 
 2.- Los arreglos se mantienen de una sola dimensión.
 
-3.- Algunos errores tardarán en ser detectados dado que las sentencias llaman a otras sentencias dentro y debido a la recursión de fuerza bruta que realiza prolog, este intenta todas las posibles combinaciones haciendo que para scripts largos tarde en ser completamente procesados y dar el false necesario.
+3.- Algunos errores tardarán en ser detectados dado que las sentencias llaman a otras sentencias anidadas, y debido a la recursión de fuerza bruta que realiza prolog, scripts largos pueden llegar a tardarse en culminar (entregando un false) por intentar todas las posibles combinaciones.
 
 
 
