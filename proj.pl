@@ -64,7 +64,7 @@ op1(-).
 %% <op2> --> * | /
 op2(*).
 op2(/).
-%% <comop> --> == | < | > | <= | >= | <>  
+%% <comop> --> == | < | > | <= | >= | <>
 comop(==).
 comop(>=).
 comop(<=).
@@ -76,8 +76,19 @@ ops(X):- asigop(X) | op1(X) | op2(X) | comop(X).
 %% <var_id> --> <atom> | \+ <ops>
 var_id([ID|TSEnd],TSEnd):- atom(ID),\+ ops(ID).
 var_id(ID,[]):- atom(ID),\+ ops(ID).
-%% <array_var> --> <atom> [ <int> ]
+%% <array_id> --> <atom> [ <int> ]
 array_id([X|['[',Y,']'|TSEnd]],TSEnd):- var_id(X,[]),integer(Y).
+%% <varlist> --> <varlistint> | <varlistfloat> | <varliststring>.
+%% <varlistint> --> <int>,<varlistint> | <int>.
+%% <varlistfloat> --> <float>,<varlistfloat> | <float>.
+%% <varliststring> --> <string>,<varliststring> | <string>.
+varlist(TSInit,TSEnd) :- varlistint(TSInit,TSEnd) | varlistfloat(TSInit,TSEnd) | varliststring(TSInit,TSEnd).
+varlistint([X,','|TSInit],TSEnd) :- integer(X),varlistint(TSInit,TSEnd).
+varlistint([X|TSEnd],TSEnd) :-integer(X).
+varlistfloat([X,','|TSInit],TSEnd) :- float(X),varlistfloat(TSInit,TSEnd).
+varlistfloat([X|TSEnd],TSEnd) :-float(X).
+varliststring([X,','|TSInit],TSEnd) :- string(X),varliststring(TSInit,TSEnd).
+varliststring([X|TSEnd],TSEnd) :-string(X).
 %% <id> -->  <var_id>| <array> 
 id(TSInit,TSEnd):- var_id(TSInit,TSEnd) | array_id(TSInit,TSEnd). 
 %% <idList> --> <id> | <id><idList>
@@ -90,6 +101,7 @@ vartype(float).
 vartype(double).
 vartype(char).
 vartype(bool).
+vartype(void).
 %% <expr2> --> <id> | <integer> | <numWDecimal> | <stringLiteral> | (<expr>) 
 expr2([X|TSEnd_I],TSEnd):-      op1(X),expr(TSEnd_I,TSEnd).
 expr2([X|TSEnd],TSEnd):-        var_id(X,[]).
@@ -103,9 +115,12 @@ expr1(TSInit,TSEnd):- expr2(TSInit,TSEnd).
 %% <expr> --> <expr> <op1> <expr1> | <expr1>
 expr(TSInit,TSEnd):- expr1(TSInit,[OP|TSEnd_I]), op1(OP), expr(TSEnd_I,TSEnd).
 expr(TSInit,TSEnd):- expr1(TSInit,TSEnd).
-%% <declareStmt> --> <vartype><idList>; | <vartype><assigStmt>
+%% <declareStmt> --> <vartype><idList>; | <vartype><assigStmt> | <vartype><assignArrayStmt>
 declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),idList(TSInit,[';'|TSEnd]).
 declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),assignStmt(TSInit,TSEnd).
+declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),assignArrayStmt(TSInit,TSEnd).
+%% <assignArrayStmt> -->  <array_id><asigop>{<varlist>};
+assignArrayStmt(TSInit,TSEnd):- array_id(TSInit,[X,'{'|TSInit_I]),asigop(X),varlist(TSInit_I,['}',';'|TSEnd]).
 %% <assignStmt> -->  <id> = <expr>;
 assignStmt([ID,X|TSInit],TSEnd):-  var_id(ID,[]),asigop(X),expr(TSInit,[';'|TSEnd]).
 %% <condExpr> --> <exp> <compop> <exp>

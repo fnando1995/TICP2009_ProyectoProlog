@@ -1,65 +1,76 @@
 # Proyecto con Prolog
 
-## Primer entregable:
+## Descripción
 
-Dada una secuencia aritmetica con operadores (+,-,*,/) y agrupaciones (parentesis) entregar si la secuencia esta correcta o no.
+Como segunda entrega de proyecto se define realizar un programa en prolog capaz de leer la sintaxis de un archivo y entregar true o false dependiendo si es correcta o no la sintaxis usada.
 
-Ej:
+El lenguaje escogido es C
 
-- Es correcta:  x=((4+5)-6)/-8
-- No correcta:  x=(4+5))-6)/-8    # falta paréntesis
 
-El programa debera entrega de resultado SI o NO dependiendo de la secuencia aritmetica.
-
-### Solución
-
-#### Assign Statement
-
-Esta función compara si lo devuelto es []. La entrada es un string tokenizado.
-
-Ej:  "x = (3+4)" ==> [x,=,(,3,+,4,)]
-
-Esta cadena es separada y analizada según:
-
+## BNF
 ```
-<assignStmt> --> <id> = <expr>
-<expr> --> <expr> <operador1> <expr1> | <expr1>
-<expr1> --> <expr1> <operador2> <expr2> | <expr2>
-<expr2> --> <operador1> <expr> | <id> | <entero> | <numDecimal> | <string> | (<expr>)
-<op2> --> * | /
-<op1> --> + | -
+<asigop>            -->     =
+<op1>               -->     - | +
+<op2>               -->     * | /
+<comop>             -->     == | < | > | <= | >= | <>  
+<ops>               -->     <asigop> | <op1> | <op2> | <comop>
+<var_id>            -->     <atom>\+<ops>
+<array_id>          -->     <atom> [ <int> ]
+<varlist>           -->     <varlistint> | <varlistfloat> | <varliststring>.
+<varlistint>        -->     <int>,<varlistint> | <int>.
+<varlistfloat>      -->     <float>,<varlistfloat> | <float>.
+<varliststring>     -->     <string>,<varliststring> | <string>.
+<id>                -->     <var_id> | <array_id> 
+<idList>            -->     <id> | <id><idList>
+<vartype>           -->     int | long | float | double | char | bool | void.
+<expr2>             -->     <id> | <integer> | <float> | <stringLiteral> | (<expr>) 
+<expr1>             -->     <expr1><op2><expr2> | <expr2>
+<expr>              -->     <expr><op1><expr1> | <expr1>
+<declareStmt>       -->     <vartype><idList>; | <vartype><assigStmt> | <vartype><assignArrayStmt>
+<assignArrayStmt>   -->     <array_id><asigop>{<varlist>};
+<assignStmt>        -->     <id><asigop><expr>;
+<condExpr>          -->     <exp><compop><exp>
+<ifStmt>            -->     if(<condExpr>){<listStmt>}else{<listStmt>} | if(<condExpr>){<listStmt>}
+<whileStmnt>        -->     while(<condExpr>){<listStmt>}
+<doWhileStmnt>      -->     do{<listStmt>}while(<condExpr>);
+<functionStmt>      -->     <vartype><atom>(<id_list>) {<listStmt>}
+<stmt>              -->     <declareStmt> | <assignStmt> | <ifStmt> | <whileStmt> | <doWhileStmt> | <functionStmt>
+<listStmt>          -->     <stmt><listStmt> | <stmt>
+<program>           -->     <listStmt>
 ```
 
-descripción: 
-
-La sentencia de asignación debe tener una variable seguida de un signo de 
-asignación (en python = ). Lo restante del lado derecho es la expresión que 
-se asignará. Se debe realizar en análisis de esta expresión.
-
-La expresión se analiza separando partes de la lista sobrante según operadores
-(+,-,\*,\/) y revisando a modo de arbol si esta sublista tiene un final de
-tipo: operador1 (esto se usa para casos donde un operador2 está alado de un 
-operador uno, ej: 3\*-4) junto a una expresión, id (variable), integer, float, 
-String, expresion entre paréntesis.
-
-Para separar el arbol de decisión, se utilizan los intermedios expr1 y expr2 
-que limitan la expresión según un operador como se mencionó anteriormente.
+## Ejecución: 
 
 
-
-### Ejecución: 
-
-
-Dentro de `testcases/` se tienen varios `testX.txt`. Los test y resultados
-esterados se pueden observar en `testcases/Review.txt`.
+Dentro de `testcases2/` se tienen varios `testX.txt`. 
 
 Para ejecutar cada aso:
 
 ```
 swipl proj.pl
-? executeProgram('testcases/testX.txt').
+? executeProgram('testcases2/testX.txt').
 ```
 
-La función ejecuta la lectura del archivo completo y lo almacena en una
-variable para luego tokenizarla y verificar si es una sentencia de 
-asignación.
+La función ejecuta la lectura del archivo completo y lo almacena en una variable para luego tokenizarla y verificar si la sintaxis de todas las sentencias del programa son correctas.
+
+
+## Consideraciones
+
+Se debe de tomar en cuentas las siguientes consideraciones sobre la ejecución de este proyecto, pues no es 100% similar a un lector de sintaxis de C completo.
+
+1.- Se obvian ingreso de librerias.
+
+2.- Los arreglos se mantienen de una sola dimensión.
+
+3.- Algunos errores tardarán en ser detectados dado que las sentencias llaman a otras sentencias dentro y debido a la recursión de fuerza bruta que realiza prolog, este intenta todas las posibles combinaciones haciendo que para scripts largos tarde en ser completamente procesados y dar el false necesario.
+
+
+
+
+
+
+
+
+
+
+
