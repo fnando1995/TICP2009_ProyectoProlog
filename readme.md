@@ -34,6 +34,8 @@ El lenguaje escogido es C
 <whileStmnt>        -->     while(<condExpr>){<listStmt>}
 <doWhileStmnt>      -->     do{<listStmt>}while(<condExpr>);
 <functionStmt>      -->     <vartype><atom>(<id_list>) {<listStmt>}
+<updateStmt>        -->     <var_id> = <expr> | <var_id><op1><op1> | <op1><op1><var_id>
+<forStmt>           -->     for (<declareStmt> <condExpr>; updateStmt){<listStmt>} | for (<assignStmt> <condExpr>; updateStmt){<listStmt>}
 <stmt>              -->     <declareStmt> | <assignStmt> | <ifStmt> | <whileStmt> | <doWhileStmt> | <functionStmt>
 <listStmt>          -->     <stmt><listStmt> | <stmt>
 <program>           -->     <listStmt>
@@ -63,6 +65,10 @@ Se debe de tomar en cuentas las siguientes consideraciones sobre la ejecución d
 2.- Los arreglos se mantienen de una sola dimensión.
 
 3.- Algunos errores tardarán en ser detectados dado que las sentencias llaman a otras sentencias dentro y debido a la recursión de fuerza bruta que realiza prolog, este intenta todas las posibles combinaciones haciendo que para scripts largos tarde en ser completamente procesados y dar el false necesario.
+
+4.- La sentencia for, dentro de su parentesis entre la primera y la segunda expresión no valida que se tenga el ";" dado que este ya es validado por la sentence de declaración y asignación.
+
+5.- La sentencia for podría agregar n sentencias en cada una de sus expresiones separadas por los ";", esto no fue agregado.
 
 
 

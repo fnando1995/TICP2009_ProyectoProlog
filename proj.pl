@@ -121,7 +121,7 @@ declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),assignStmt(TSInit,TSEnd)
 declareStmt([VARTYPE|TSInit],TSEnd) :- vartype(VARTYPE),assignArrayStmt(TSInit,TSEnd).
 %% <assignArrayStmt> -->  <array_id><asigop>{<varlist>};
 assignArrayStmt(TSInit,TSEnd):- array_id(TSInit,[X,'{'|TSInit_I]),asigop(X),varlist(TSInit_I,['}',';'|TSEnd]).
-%% <assignStmt> -->  <id> = <expr>;
+%% <assignStmt> -->  <var_id> = <expr>;
 assignStmt([ID,X|TSInit],TSEnd):-  var_id(ID,[]),asigop(X),expr(TSInit,[';'|TSEnd]).
 %% <condExpr> --> <exp> <compop> <exp>
 condExpr(TSInit,TSEnd):- expr(TSInit,[X|TSEnd_I]),comop(X),expr(TSEnd_I,TSEnd).  %%posible modif
@@ -134,8 +134,15 @@ whileStmt(['while','('|TSInit],TSEnd):- condExpr(TSInit,[')','{'|TSEnd_I]),listS
 doWhileStmt(['do','{'|TSInit],TSEnd):- listStmt(TSInit,['}','while','('|TSEnd_I]),condExpr(TSEnd_I,[')',';'|TSEnd]).
 %% <function>--> <vartype> <atom>(<id_list>) {<listStmt>}
 functionStmt([X,FUNCNAME,'('|TSInit],TSEnd):- vartype(X),atom(FUNCNAME),idList(TSInit,[')','{'|TSEnd_I]),listStmt(TSEnd_I,['}'|TSEnd]).
+% <updateStmt> --> <var_id> = <expr> | <var_id><op1><op1> | <op1><op1><var_id>
+updateStmt([ID,X|TSInit],TSEnd):- var_id(ID,[]),asigop(X),expr(TSInit,TSEnd).
+updateStmt([ID,OP1,OP2|TSEnd],TSEnd):- var_id(ID,[]),op1(OP1),op1(OP2).
+updateStmt([OP1,OP2,ID|TSEnd],TSEnd):- var_id(ID,[]),op1(OP1),op1(OP2).
+%% <forStmt> --> for (<declareStmt> <condExpr>; updateStmt){<listStmt>} | for (<assignStmt> <condExpr>; updateStmt){<listStmt>}
+forStmt(['for','('|TSInit],TSEnd):- declareStmt(TSInit,TSInit_I),condExpr(TSInit_I,[';'|TSInit_I2]),updateStmt(TSInit_I2,[')','{'|TSInit_I3]),listStmt(TSInit_I3,['}'|TSEnd]).
+forStmt(['for','('|TSInit],TSEnd):- assignStmt(TSInit,TSInit_I),condExpr(TSInit_I,[';'|TSInit_I2]),updateStmt(TSInit_I2,[')','{'|TSInit_I3]),listStmt(TSInit_I3,['}'|TSEnd]).
 %% <stmt> :- assignStmt | declareStatement
-stmt(TSInit,TSEnd) :- declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd) | ifStmt(TSInit,TSEnd) | whileStmt(TSInit,TSEnd) | doWhileStmt(TSInit,TSEnd) | functionStmt(TSInit,TSEnd).
+stmt(TSInit,TSEnd) :- forStmt(TSInit,TSEnd) | updateStmt(TSInit,[';'|TSEnd]) | declareStmt(TSInit,TSEnd) | assignStmt(TSInit,TSEnd) | ifStmt(TSInit,TSEnd) | whileStmt(TSInit,TSEnd) | doWhileStmt(TSInit,TSEnd) | functionStmt(TSInit,TSEnd).
 listStmt(TSInit,TSEnd) :- stmt(TSInit,TSInit_I),listStmt(TSInit_I,TSEnd) | stmt(TSInit,TSEnd).
 program(TSInit,TSEnd):- listStmt(TSInit,TSEnd).
 %% Ejecucion:
